@@ -2,14 +2,16 @@ import re
 
 tokens = {
     "NUMBER": r'\d+(\.\d+)?',
-    "OP": r'[+\-*/<=]',
+    "OP": r'[+\-*/<=(<>)]',
     "ID": r'[A-Za-z_]\w*',
+    # "MISMATCH": r'.'
 }
 
 def main():
     code = input("Input: ")
 
     token_regex = '|'.join(f'(?P<{name}>{pattern})' for name, pattern in tokens.items())
+    # print(token_regex)
     
     output_tokens = []
     symbols = {}
@@ -28,6 +30,9 @@ def main():
             output_tokens.append(symbols[value])          
         elif kind == "OP":
             output_tokens.append(value)
+        # elif kind == "MISMATCH":
+        #     print(f"Unexpected character: {value}")
+        #     exit(1)
 
     print("Output:", " ".join(output_tokens))
     print("Symbols:", symbols)
