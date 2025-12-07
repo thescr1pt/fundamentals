@@ -518,7 +518,7 @@ def generate_assembly(optimized_code, type_table):
                 assembly.append(f"STR{suffix} {left}, {result_reg}")
         
         elif ' + ' in right:
-            # Addition: id1 = temp1 + temp2
+            # Addition: id1 = temp1 + temp2 or id1 = id2 + temp1
             parts = right.split(' + ')
             operand1 = parts[0].strip()
             operand2 = parts[1].strip()
@@ -527,21 +527,29 @@ def generate_assembly(optimized_code, type_table):
             if operand1.startswith('temp'):
                 reg1 = f"R{temp_registers[operand1]}"
             elif operand1.startswith('id'):
-                reg1 = "R1"
+                # Check if second operand uses R1, if so use R2
+                if operand2.startswith('temp') and temp_registers.get(operand2) == 1:
+                    reg1 = "R2"
+                else:
+                    reg1 = "R1"
                 assembly.append(f"LD{suffix} {reg1}, {operand1}")
             else:
-                # Should not load constants, but handle edge case
-                reg1 = "R1"
+                # Constant - check if second operand uses R1
+                if operand2.startswith('temp') and temp_registers.get(operand2) == 1:
+                    reg1 = "R2"
+                else:
+                    reg1 = "R1"
                 assembly.append(f"LD{suffix} {reg1}, #{operand1}")
             
             # Get register for second operand
             if operand2.startswith('temp'):
                 reg2 = f"R{temp_registers[operand2]}"
             elif operand2.startswith('id'):
-                reg2 = "R2"
+                # Use the register that's not being used by operand1
+                reg2 = "R2" if reg1 == "R1" else "R1"
                 assembly.append(f"LD{suffix} {reg2}, {operand2}")
             else:
-                reg2 = "R2"
+                reg2 = "R2" if reg1 == "R1" else "R1"
                 assembly.append(f"LD{suffix} {reg2}, #{operand2}")
             
             # Add into first register
@@ -562,19 +570,26 @@ def generate_assembly(optimized_code, type_table):
             if operand1.startswith('temp'):
                 reg1 = f"R{temp_registers[operand1]}"
             elif operand1.startswith('id'):
-                reg1 = "R1"
+                # Check if second operand uses R1, if so use R2
+                if operand2.startswith('temp') and temp_registers.get(operand2) == 1:
+                    reg1 = "R2"
+                else:
+                    reg1 = "R1"
                 assembly.append(f"LD{suffix} {reg1}, {operand1}")
             else:
-                reg1 = "R1"
+                if operand2.startswith('temp') and temp_registers.get(operand2) == 1:
+                    reg1 = "R2"
+                else:
+                    reg1 = "R1"
                 assembly.append(f"LD{suffix} {reg1}, #{operand1}")
             
             if operand2.startswith('temp'):
                 reg2 = f"R{temp_registers[operand2]}"
             elif operand2.startswith('id'):
-                reg2 = "R2"
+                reg2 = "R2" if reg1 == "R1" else "R1"
                 assembly.append(f"LD{suffix} {reg2}, {operand2}")
             else:
-                reg2 = "R2"
+                reg2 = "R2" if reg1 == "R1" else "R1"
                 assembly.append(f"LD{suffix} {reg2}, #{operand2}")
             
             assembly.append(f"SUB{suffix} {reg1}, {reg1}, {reg2}")

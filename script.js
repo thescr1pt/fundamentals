@@ -148,7 +148,7 @@ async function compile() {
 // Display functions
 function displayTokens(tokens) {
     tokensOutput.innerHTML = tokens.map(t => 
-        `<span class="token ${t.type}">${t.original}</span>`
+        `<span class="token ${t.type}">${t.type === 'ID' ? t.value : t.original}</span>`
     ).join('');
 }
 
@@ -418,7 +418,7 @@ async function hybridCompile() {
 
 function displayHybridTokens(tokens) {
     hybridTokensOutput.innerHTML = tokens.map(t => 
-        `<span class="token ${t.type}">${t.original}</span>`
+        `<span class="token ${t.type}">${t.type === 'ID' ? t.value : t.original}</span>`
     ).join('');
 }
 
