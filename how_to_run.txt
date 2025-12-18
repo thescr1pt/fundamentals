@@ -1,0 +1,2 @@
+Run the API from compiler_api.py
+Then open the front end UI in index.html
